@@ -1,17 +1,21 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Collections;
 
 public class BallScripts : MonoBehaviour
 {
     public GameObject[] bombs;
     public GameObject sparks;
+    public GameObject explosion;
+    public GameObject background;
 
     GameObject initialSparks = null;
+    GameObject exp = null;
 
     int rowCount = 0;
 
-    public bool isAllowOneDown = false;
+    bool isAllowOneDown = false;
     private bool isCatchedValue = false;
 
     public bool IsCatchedValue
@@ -28,7 +32,7 @@ public class BallScripts : MonoBehaviour
     {
 
         BuildBlocks();
-
+        letsMove();
     }
 
     // Update is called once per frame
@@ -85,7 +89,7 @@ public class BallScripts : MonoBehaviour
         if (!initialSparks)
         {
             Vector3 initialPosition;
-            if (UnityEngine.Random.Range(0, 1) > 0.5f)
+            if (UnityEngine.Random.Range(0, 100) > 50)
             {
                 initialPosition = leftBombs[0].transform.position;
             }
@@ -101,6 +105,11 @@ public class BallScripts : MonoBehaviour
     private void FixedUpdate()
     {
         moveDownBombs();
+
+        if (Input.touchCount == 1 && (Input.GetTouch(0).deltaPosition.x > 0.1f || Input.GetTouch(0).deltaPosition.x <-0.1))
+        {
+            switchDirection(); 
+        }
     }
 
     private void moveDownBombs()
@@ -115,6 +124,12 @@ public class BallScripts : MonoBehaviour
 
                     leftBombs[i].GetComponent<Rigidbody2D>().MovePosition(leftBombs[i].GetComponent<Rigidbody2D>().position + new Vector2(0, -5 * Time.deltaTime));
                     rightBombs[i].GetComponent<Rigidbody2D>().MovePosition(rightBombs[i].GetComponent<Rigidbody2D>().position + new Vector2(0, -5 * Time.deltaTime));
+
+                    background.transform.Translate(new Vector3(0, -0.5f * Time.deltaTime, 0));
+                    if (background.transform.position.y < -5.7f)
+                    {
+                        background.transform.position = new Vector3(0, 4.5f, 0);
+                    }
                 }
 
             }
@@ -135,6 +150,8 @@ public class BallScripts : MonoBehaviour
                 Destroy(initialSparks);
                 initialSparks = null;
 
+                Destroy(exp);
+
                 for (int i = 0; i < rowCount -1; i++)
                 {
                     leftBombs[i] = leftBombs[i + 1];
@@ -142,8 +159,54 @@ public class BallScripts : MonoBehaviour
                 }
 
                 BuildBlocks(true);
+
+                GetComponent<Rigidbody2D>().position = new Vector2(0, 0);
+                letsMove();
             }
         }
+    }
 
+    void letsMove()
+    {
+
+        gameObject.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
+        float force = 0;
+
+        if (UnityEngine.Random.Range(0, 100) < 50)
+        {
+            force = 200f;
+        }
+        else
+        {
+            force = -200f;
+        }
+
+        gameObject.GetComponent<Rigidbody2D>().AddForce(new Vector2(force, 0));
+
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (transform.position.x * initialSparks.transform.position.x > 0)
+        {
+            exp = Instantiate(explosion, transform.position, Quaternion.identity);
+        }
+
+        GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
+        GetComponent<Rigidbody2D>().position = new Vector2(0, -5);
+
+
+        isAllowOneDown = true;
+
+    }
+
+    private void OnMouseDown()
+    {
+        switchDirection();
+    }
+
+    void switchDirection()
+    {
+        GetComponent<Rigidbody2D>().velocity = new Vector2(-GetComponent<Rigidbody2D>().velocity.x * 5, 0);
     }
 }
