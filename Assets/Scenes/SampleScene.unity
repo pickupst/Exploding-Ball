@@ -413,4 +413,5 @@ MonoBehaviour:
   bombs:
   - {fileID: 2388170272066238754, guid: 10d96a621d441f24c88a05eb9f211b53, type: 3}
   - {fileID: 955476034228549196, guid: 869c1aa5adcc63742bb9b94a49360872, type: 3}
+  sparks: {fileID: 5320185089749889101, guid: 063746905c846604e99122c5f10c6568, type: 3}
   isAllowOneDown: 0

@@ -5,6 +5,9 @@ using System.Collections.Generic;
 public class BallScripts : MonoBehaviour
 {
     public GameObject[] bombs;
+    public GameObject sparks;
+
+    GameObject initialSparks = null;
 
     int rowCount = 0;
 
@@ -34,7 +37,7 @@ public class BallScripts : MonoBehaviour
         
     }
 
-    void BuildBlocks()
+    void BuildBlocks(bool isOneLine = false)
     {
 
         float bombWidth = bombs[0].GetComponent<Renderer>().bounds.size.x;
@@ -45,13 +48,53 @@ public class BallScripts : MonoBehaviour
 
         rowCount = (int) (targetWidth.y / bombWidth);
 
-        for (int i = 0; i < rowCount; i++)
+        int startValue = 0;
+
+        if (isOneLine)
+        {
+            startValue = rowCount - 1;
+        }
+
+        for (int i = startValue; i < rowCount; i++)
         {
 
             int randomBombIndex = UnityEngine.Random.Range(0, bombs.Length);
+            GameObject obj = null;
 
-            leftBombs.Add((GameObject) Instantiate(bombs[randomBombIndex], new Vector3(-targetWidth.x + (bombWidth/2), i * bombWidth, 0), Quaternion.identity));
-            rightBombs.Add(Instantiate(bombs[(randomBombIndex + 1 ) % bombs.Length], new Vector3(+targetWidth.x - (bombWidth / 2), i * bombWidth, 0), Quaternion.identity));
+            obj = (GameObject) Instantiate(bombs[randomBombIndex], new Vector3(-targetWidth.x + (bombWidth / 2), i * bombWidth, 0), Quaternion.identity);
+            if (isOneLine)
+            {
+                leftBombs[i] = obj;
+            }
+            else
+            {
+                leftBombs.Add(obj);
+            }
+
+            obj = Instantiate(bombs[(randomBombIndex + 1) % bombs.Length], new Vector3(+targetWidth.x - (bombWidth / 2), i * bombWidth, 0), Quaternion.identity);
+            if (isOneLine)
+            {
+                rightBombs[i] = obj;
+            }
+            else
+            {
+                rightBombs.Add(obj);
+            }
+        }
+
+        if (!initialSparks)
+        {
+            Vector3 initialPosition;
+            if (UnityEngine.Random.Range(0, 1) > 0.5f)
+            {
+                initialPosition = leftBombs[0].transform.position;
+            }
+            else
+            {
+                initialPosition = rightBombs[0].transform.position;
+            }
+
+            initialSparks = (GameObject) Instantiate(sparks, initialPosition + new Vector3(bombWidth/7, bombWidth/3, 0), Quaternion.identity);
         }
     }
 
@@ -89,11 +132,16 @@ public class BallScripts : MonoBehaviour
                 isAllowOneDown = false;
                 isCatchedValue = false;
 
+                Destroy(initialSparks);
+                initialSparks = null;
+
                 for (int i = 0; i < rowCount -1; i++)
                 {
                     leftBombs[i] = leftBombs[i + 1];
                     rightBombs  [i] = rightBombs[i + 1];
                 }
+
+                BuildBlocks(true);
             }
         }
 
