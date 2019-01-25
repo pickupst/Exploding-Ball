@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections;
+using UnityEngine.UI;
 
 public class BallScripts : MonoBehaviour
 {
@@ -14,9 +15,12 @@ public class BallScripts : MonoBehaviour
     GameObject exp = null;
 
     int rowCount = 0;
+    int lives = 3;
 
     bool isAllowOneDown = false;
     private bool isCatchedValue = false;
+
+    public Text lifeText;
 
     public bool IsCatchedValue
     {
@@ -110,6 +114,8 @@ public class BallScripts : MonoBehaviour
         {
             switchDirection(); 
         }
+
+        lifeText.text = lives + " lives";
     }
 
     private void moveDownBombs()
@@ -190,6 +196,11 @@ public class BallScripts : MonoBehaviour
         if (transform.position.x * initialSparks.transform.position.x > 0)
         {
             exp = Instantiate(explosion, transform.position, Quaternion.identity);
+            --lives;
+            if (lives <= 0)
+            {
+                Application.LoadLevel(1);
+            }
         }
 
         GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
