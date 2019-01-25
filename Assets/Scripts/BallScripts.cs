@@ -9,6 +9,13 @@ public class BallScripts : MonoBehaviour
     int rowCount = 0;
 
     public bool isAllowOneDown = false;
+    private bool isCatchedValue = false;
+
+    public bool IsCatchedValue
+    {
+        get { return isCatchedValue; }
+        set { isCatchedValue = value; }
+    }
 
     List<GameObject> leftBombs = new List<GameObject>();
     List<GameObject> rightBombs = new List<GameObject>();
@@ -58,14 +65,36 @@ public class BallScripts : MonoBehaviour
 
         if (isAllowOneDown)
         {
-
-            for (int i = rowCount - 1; i > 0; i--)
+            if (!isCatchedValue)
             {
+                for (int i = rowCount - 1; i > 0; i--)
+                {
 
-                leftBombs[i].GetComponent<Rigidbody2D>().MovePosition(leftBombs[i].GetComponent<Rigidbody2D>().position + new Vector2(0, -5 * Time.deltaTime));
-                rightBombs[i].GetComponent<Rigidbody2D>().MovePosition(rightBombs[i].GetComponent<Rigidbody2D>().position + new Vector2(0, -5 * Time.deltaTime));
+                    leftBombs[i].GetComponent<Rigidbody2D>().MovePosition(leftBombs[i].GetComponent<Rigidbody2D>().position + new Vector2(0, -5 * Time.deltaTime));
+                    rightBombs[i].GetComponent<Rigidbody2D>().MovePosition(rightBombs[i].GetComponent<Rigidbody2D>().position + new Vector2(0, -5 * Time.deltaTime));
+                }
+
             }
+            else
+            {
+                Destroy(leftBombs[0].gameObject);
+                Destroy(rightBombs[0].gameObject);
 
+                for (int i = rowCount -1; i > 0; i--)
+                {
+                    leftBombs[i].GetComponent<Rigidbody2D>().MovePosition(leftBombs[i].GetComponent<Rigidbody2D>().position + new Vector2(0, 0.2f));
+                    rightBombs[i].GetComponent<Rigidbody2D>().MovePosition(rightBombs[i].GetComponent<Rigidbody2D>().position + new Vector2(0, 0.2f));
+                }
+
+                isAllowOneDown = false;
+                isCatchedValue = false;
+
+                for (int i = 0; i < rowCount -1; i++)
+                {
+                    leftBombs[i] = leftBombs[i + 1];
+                    rightBombs  [i] = rightBombs[i + 1];
+                }
+            }
         }
 
     }
